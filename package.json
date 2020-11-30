@@ -1,7 +1,7 @@
 {
   "name": "nanoid",
-  "version": "2.0.3",
-  "description": "A tiny (141 bytes), secure URL-friendly unique string ID generator",
+  "version": "3.1.18",
+  "description": "A tiny (108 bytes), secure URL-friendly unique string ID generator",
   "keywords": [
     "uuid",
     "random",
@@ -9,102 +9,130 @@
     "url"
   ],
   "scripts": {
-    "api": "documentation build *.js {async,non-secure}/*.js -f md -o api.md",
-    "spell": "yarn api && yaspeller-ci *.md",
-    "clean": "rimraf api.md coverage/",
-    "test": "jest --coverage && eslint-ci . && size-limit && yarn spell",
-    "start": "parcel serve test/demo/index.html -d test/demo/build --open"
+    "test": "jest --coverage && eslint . && check-dts && size-limit && yaspeller *.md",
+    "start": "parcel test/demo/index.html --dist-dir test/demo/build --open"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
   },
   "author": "Andrey Sitnik <andrey@sitnik.ru>",
   "license": "MIT",
   "repository": "ai/nanoid",
   "browser": {
     "./index.js": "./index.browser.js",
-    "./random.js": "./random.browser.js",
-    "./async/index.js": "./async/index.browser.js",
-    "./async/random.js": "./async/random.browser.js"
+    "./async/index.js": "./async/index.browser.js"
   },
+  "react-native": {
+    "./async/index.js": "./async/index.native.js"
+  },
+  "bin": "./bin/nanoid.cjs",
   "sideEffects": false,
+  "types": "./index.d.ts",
   "devDependencies": {
-    "@logux/eslint-config": "^30.0.1",
-    "@logux/sharec-config": "^0.3.3",
+    "@logux/eslint-config": "^42.2.3",
+    "@logux/sharec-config": "^0.8.5",
+    "@size-limit/dual-publish": "^4.9.0",
+    "@size-limit/preset-small-lib": "^4.9.0",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
     "benchmark": "^2.1.4",
-    "chalk": "^2.4.2",
-    "clean-publish": "^1.1.2",
-    "documentation": "^12.0.3",
-    "eslint": "^6.1.0",
-    "eslint-ci": "^1.0.0",
-    "eslint-config-standard": "^13.0.1",
-    "eslint-plugin-es5": "^1.4.1",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-import-helpers": "^1.0.2",
-    "eslint-plugin-jest": "^22.14.0",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-prefer-let": "^1.0.1",
+    "check-dts": "^0.4.1",
+    "colorette": "^1.2.1",
+    "cuid": "^2.1.8",
+    "dual-publish": "^1.0.3",
+    "eslint": "^7.14.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-es5": "^1.5.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prefer-let": "^1.1.0",
+    "eslint-plugin-prettierx": "^0.14.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-security": "^1.4.0",
-    "eslint-plugin-standard": "^4.0.0",
-    "gzip-size": "^5.1.1",
-    "husky": "^3.0.1",
-    "jest": "^24.8.0",
-    "lint-staged": "^9.2.1",
-    "microtime": "^3.0.0",
-    "parcel-bundler": "^1.12.3",
-    "rimraf": "^2.6.3",
+    "eslint-plugin-unicorn": "^23.0.0",
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.5.2",
+    "parcel": "nightly",
     "rndm": "^1.2.0",
-    "secure-random-string": "^1.1.2",
-    "shortid": "^2.2.14",
-    "size-limit": "^1.3.8",
+    "secure-random-string": "^1.1.3",
+    "shortid": "^2.2.16",
+    "size-limit": "^4.9.0",
+    "terser": "^5.5.1",
+    "typescript": "^4.1.2",
     "uid-safe": "^2.1.5",
-    "uuid": "^3.3.2",
-    "webpack": "^4.38.0",
-    "webpack-cli": "^3.3.6",
-    "yaspeller-ci": "^1.0.1"
+    "uuid": "^8.3.1",
+    "yaspeller": "^7.0.0"
   },
   "size-limit": [
     {
-      "path": "index.js",
+      "name": "nanoid",
+      "import": "{ nanoid }",
+      "limit": "108 B"
+    },
+    {
+      "name": "customAlphabet",
+      "import": "{ customAlphabet }",
       "limit": "141 B"
     },
     {
-      "path": "generate.js",
-      "limit": "180 B"
+      "name": "urlAlphabet",
+      "import": "{ urlAlphabet }",
+      "limit": "59 B"
     },
     {
-      "path": "url.js",
-      "limit": "64 B"
-    },
-    {
+      "name": "non-secure nanoid",
+      "import": "{ nanoid }",
       "path": "non-secure/index.js",
-      "limit": "105 B"
+      "limit": "103 B"
     },
     {
-      "path": "non-secure/generate.js",
-      "limit": "47 B"
+      "name": "non-secure customAlphabet",
+      "import": "{ customAlphabet }",
+      "path": "non-secure/index.js",
+      "limit": "45 B"
     },
     {
+      "name": "async nanoid",
+      "import": "{ nanoid }",
       "path": "async/index.js",
-      "limit": "153 B"
+      "limit": "118 B"
     },
     {
-      "path": "async/generate.js",
-      "limit": "200 B"
+      "name": "async customAlphabet",
+      "import": "{ customAlphabet }",
+      "path": "async/index.js",
+      "limit": "138 B"
     }
   ],
   "eslintConfig": {
-    "extends": "@logux/eslint-config/browser",
+    "extends": "@logux/eslint-config/ts",
     "rules": {
       "consistent-return": "off",
+      "func-style": "off",
       "yoda": "off"
-    }
+    },
+    "overrides": [
+      {
+        "files": "*.native.js",
+        "rules": {
+          "node/no-missing-require": "off",
+          "global-require": "off"
+        }
+      }
+    ]
   },
   "eslintIgnore": [
-    "node_modules",
-    "test/demo/build"
+    "test/demo/build",
+    "nanoid.js",
+    "**/errors.ts"
   ],
   "lint-staged": {
-    "*.md": "yaspeller-ci",
-    "*.js": "eslint"
+    "index.browser.js": "test/update-prebuild.js",
+    "*.md": "yaspeller",
+    "*.js": "eslint --fix",
+    "*.ts": "eslint --fix"
   },
   "husky": {
     "hooks": {
@@ -122,41 +150,48 @@
   "yaspeller": {
     "lang": "en",
     "ignoreCapitalization": true,
-    "excludeFiles": [
-      "README-*.md"
-    ],
     "ignoreText": [
       " \\(by [^)]+\\)."
     ],
     "dictionary": [
       "Async",
-      "asyncGenerator",
       "CLI",
       "Clojure",
       "ClojureScript",
       "Crypto",
       "cryptographically",
-      "formatAsync",
-      "generateAsync",
-      "gzip",
       "gzipped",
       "Haskell",
       "js",
+      "JS",
       "JSDoc",
       "nanoid",
       "Nim",
-      "nonSecure",
       "npm",
       "UUID",
       "v4",
       "Versioning",
-      "JS",
       "PouchDB",
       "CouchDB",
-      "async"
+      "Tidelift",
+      "as ESM in",
+      "ES",
+      "webpack",
+      "CDN",
+      "XPS",
+      "jsDelivr",
+      "bundlers",
+      "ES2016",
+      "github",
+      "ai",
+      "Rollup",
+      "transpile",
+      "workaround",
+      "Deno"
     ]
   },
   "sharec": {
-    "version": "0.3.3"
+    "config": "@logux/sharec-config",
+    "version": "0.8.5"
   }
 }

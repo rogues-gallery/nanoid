@@ -1,63 +1,68 @@
 #!/usr/bin/env node
 
+let { v4: uuid4 } = require('uuid')
 let benchmark = require('benchmark')
+let { bold } = require('colorette')
 let shortid = require('shortid')
-let uuid4 = require('uuid/v4')
-let chalk = require('chalk')
+let cuid = require('cuid')
 let rndm = require('rndm')
 let srs = require('secure-random-string')
 let uid = require('uid-safe')
 
-let asyncGenerate = require('../async/generate')
-let nonSecure = require('../non-secure')
-let generate = require('../generate')
-let nanoid = require('../')
-let async = require('../async')
+let { nanoid: aNanoid, customAlphabet: aCustomAlphabet } = require('../async')
+let { nanoid, customAlphabet } = require('../')
+let { nanoid: nonSecure } = require('../non-secure')
 
 let suite = new benchmark.Suite()
 
+let nanoid2 = customAlphabet('1234567890abcdef-', 10)
+let asyncNanoid2 = aCustomAlphabet('1234567890abcdef-', 10)
+
 function formatNumber (number) {
   return String(number)
-    .replace(/\d\d\d$/, ',$&')
-    .replace(/^(\d)(\d\d\d)/, '$1,$2')
+    .replace(/\d{3}$/, ',$&')
+    .replace(/^(\d)(\d{3})/, '$1,$2')
 }
 
 suite
   .add('nanoid', () => {
     nanoid()
   })
-  .add('nanoid/generate', () => {
-    generate('1234567890abcdef-', 10)
+  .add('customAlphabet', () => {
+    nanoid2()
+  })
+  .add('uuid v4', () => {
+    uuid4()
   })
   .add('uid.sync', () => {
     uid.sync(14)
   })
-  .add('uuid/v4', () => {
-    uuid4()
-  })
   .add('secure-random-string', () => {
     srs()
+  })
+  .add('cuid', () => {
+    cuid()
   })
   .add('shortid', () => {
     shortid()
   })
-  .add('nanoid/async', {
+  .add('async nanoid', {
     defer: true,
     fn (defer) {
-      async().then(() => {
+      aNanoid().then(() => {
         defer.resolve()
       })
     }
   })
-  .add('nanoid/async/generate', {
+  .add('async customAlphabet', {
     defer: true,
     fn (defer) {
-      asyncGenerate('1234567890abcdef-', 10).then(() => {
+      asyncNanoid2().then(() => {
         defer.resolve()
       })
     }
   })
-  .add('secure-random-string', {
+  .add('async secure-random-string', {
     defer: true,
     fn (defer) {
       srs(() => {
@@ -73,20 +78,20 @@ suite
       })
     }
   })
-  .add('nanoid/non-secure', () => {
+  .add('non-secure nanoid', () => {
     nonSecure()
   })
   .add('rndm', () => {
     rndm(21)
   })
   .on('cycle', event => {
-    let name = event.target.name.padEnd('nanoid/async/generate'.length)
+    let name = event.target.name.padEnd('async secure-random-string'.length)
     let hz = formatNumber(event.target.hz.toFixed(0)).padStart(9)
-    if (event.target.name === 'nanoid/async') {
+    if (event.target.name === 'async nanoid') {
       name = '\nAsync:\n' + name
-    } else if (event.target.name === 'nanoid/non-secure') {
+    } else if (event.target.name === 'non-secure nanoid') {
       name = '\nNon-secure:\n' + name
     }
-    process.stdout.write(`${ name }   ${ chalk.bold(hz) } ops/sec\n`)
+    process.stdout.write(`${name}${bold(hz)} ops/sec\n`)
   })
   .run()
